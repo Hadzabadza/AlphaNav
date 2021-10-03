@@ -4,7 +4,7 @@ import java.io.File;
 ///////////////////////////////////////////////////////////////
 //                    SETTINGS HERE                          //
 String map_name = "Mep.png";
-int node_radius = 10;
+String filters_folder = "filters";
 int node_min_mass = 32;
 //                                                           //
 ///////////////////////////////////////////////////////////////
@@ -15,43 +15,31 @@ MainMap origin;
 FilterManager fb;
 NodeManager nb;
 
-//PImage map_origin;
-//PVector origin.position;
-
 boolean filters_loaded = false;
 boolean nodes_built = false;
-
-String fileExtension = ".png";
-
-
-java.io.File filters_folder;
-java.io.FilenameFilter extfilter = new java.io.FilenameFilter() {
-  boolean accept(File dir, String name) {
-    return name.toLowerCase().endsWith(fileExtension);
-  }
-};
-
-PImage[] filters;
-//PGraphics map_blend_screen;
 
 void setup() {
   //size(1000, 1000);
   fullScreen();
   origin = new MainMap(map_name);
-  filters_folder = new java.io.File(sketchPath("filters"));
   cp5 = new ControlP5(this);
   fb = new FilterManager(origin);
+  fb.filters_folder = new java.io.File(sketchPath(filters_folder));
+  nb = new NodeManager();
 }
 
 void draw() {
   clear();
   if (!filters_loaded||nodes_built) {
-    if (fb.show_origin||!fb.toggled) origin.draw();
-  } else {
-    origin.draw_blend_screen();
-  }
+    if (fb.show_origin||!fb.toggled) origin.draw();} 
+    else origin.draw_blend_screen();
   fb.draw();
-  if (nb!=null) nb.draw();
+  nb.draw();
+}
+
+void keyReleased() {
+  if (key==' ') fb.load_and_apply_filters();
+  if (key=='b'|| key=='B') nb.build_nodes(origin.blend_screen.get());
 }
 
 void print_filter_pixel_from_mouse() {
@@ -71,32 +59,3 @@ void print_filter_pixel_from_mouse() {
   int pix = fb.map_filtered.get(searchX, searchY); 
   //println(searchX+" "+searchY+" "+red(pix)+" "+green(pix)+" "+blue(pix)+" "+alpha(pix));
 }
-
-void keyReleased() {
-  if (key==' ') load_filters();
-  if (key=='b'|| key=='B') nb = new NodeManager(origin.blend_screen, origin.position);
-}
-
-void load_filters() {
-  filters_loaded = true;
-  println(sketchPath());
-  println(filters_folder);
-  origin.blend_screen = createGraphics(origin.w, origin.h);
-  origin.blend_screen.beginDraw();
-  origin.blend_screen.clear();
-  origin.blend_screen.image(origin.map, 0, 0);
-  origin.blend_screen.endDraw();
-
-  String[] filter_names = filters_folder.list(extfilter);
-  filters = new PImage[filter_names.length];
-  for (int i=0; i<filter_names.length; i++) {
-    origin.blend_screen.beginDraw();
-    filters[i] = loadImage(filters_folder+"\\"+filter_names[i]);
-    origin.blend_screen.blend(filters[i], 0, 0, filters[i].width, filters[i].height, 0, 0, origin.w, origin.h, SUBTRACT);
-    println("Loaded filter \""+filter_names[i]+"\"");
-    origin.blend_screen.endDraw();
-  }
-  origin.blend_screen.beginDraw();
-  origin.blend_screen.filter(THRESHOLD, 0.01);
-  origin.blend_screen.endDraw();
-} 

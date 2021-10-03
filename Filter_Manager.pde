@@ -1,5 +1,14 @@
 class FilterManager {
 
+  String fileExtension = ".png";
+  java.io.File filters_folder;
+  java.io.FilenameFilter extfilter = new java.io.FilenameFilter() {
+    boolean accept(File dir, String name) {
+      return name.toLowerCase().endsWith(fileExtension);
+    }
+  };
+  PImage[] filters;
+
   PImage map_filtered;
   String filter_name = "Filter1.png";
 
@@ -58,6 +67,30 @@ class FilterManager {
     create_controllers();
     update();
   }
+
+  void load_and_apply_filters() {
+    println(sketchPath());
+    println(filters_folder);
+    origin.blend_screen = createGraphics(origin.w, origin.h);
+    origin.blend_screen.beginDraw();
+    origin.blend_screen.clear();
+    origin.blend_screen.image(origin.map, 0, 0);
+    origin.blend_screen.endDraw();
+
+    String[] filter_names = filters_folder.list(extfilter);
+    filters = new PImage[filter_names.length];
+    for (int i=0; i<filter_names.length; i++) {
+      origin.blend_screen.beginDraw();
+      filters[i] = loadImage(filters_folder+"\\"+filter_names[i]);
+      origin.blend_screen.blend(filters[i], 0, 0, filters[i].width, filters[i].height, 0, 0, origin.w, origin.h, SUBTRACT);
+      println("Loaded filter \""+filter_names[i]+"\"");
+      origin.blend_screen.endDraw();
+    }
+    origin.blend_screen.beginDraw();
+    origin.blend_screen.filter(THRESHOLD, 0.01);
+    origin.blend_screen.endDraw();
+    filters_loaded = true;
+  } 
 
   void update() {
     map_filtered = origin.map.copy();
