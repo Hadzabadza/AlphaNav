@@ -12,7 +12,7 @@ class FilterManager {
   PImage map_filtered;
   String filter_name = "Filter1.png";
 
-  PGraphics filter_screen = createGraphics(origin.map.width, origin.map.height);
+  //PGraphics filter_screen = createGraphics(origin.map.width, origin.map.height);
   PGraphics blend_screen = createGraphics(origin.map.width, origin.map.height);
   PGraphics binary_screen = createGraphics(origin.map.width, origin.map.height);
 
@@ -43,12 +43,12 @@ class FilterManager {
   controlP5.Controller[] filter_builders;
 
   FilterManager(MainMap origin) {
-    position = origin.position.copy();
+    position = new PVector(origin.position.x, height);//origin.position.copy();
     move_to = position.copy();
-    sliders_starting_x = round(origin.position.x+20);
-    sliders_starting_y = round(origin.position.y)+ height-height/50*2-60;
-    slider_width = origin.map.width/12;
-    slider_height = origin.map.height/50;
+    slider_width = width/12;
+    slider_height = slider_width/6;
+    sliders_starting_x = 20;
+    sliders_starting_y = round(position.y) + origin.h + slider_height*2;
     slider_padding_x = slider_width/2;
     slider_padding_y = slider_height;
     create_controllers();
@@ -56,18 +56,18 @@ class FilterManager {
     update();
   }
 
-  FilterManager(PVector _position, int _sliders_starting_x, int _sliders_starting_y, int _slider_width, int _slider_height) {
-    position = _position.copy();
-    move_to = position.copy();
-    sliders_starting_x = _sliders_starting_x;
-    sliders_starting_y = _sliders_starting_y;
-    slider_width = _slider_width;
-    slider_height = _slider_height;
-    slider_padding_x = slider_width/2;
-    slider_padding_y = slider_height;
-    create_controllers();
-    update();
-  }
+  //FilterManager(PVector _position, int _sliders_starting_x, int _sliders_starting_y, int _slider_width, int _slider_height) {
+  //  position = _position.copy();
+  //  move_to = position.copy();
+  //  sliders_starting_x = _sliders_starting_x;
+  //  sliders_starting_y = _sliders_starting_y;
+  //  slider_width = _slider_width;
+  //  slider_height = _slider_height;
+  //  slider_padding_x = slider_width/2;
+  //  slider_padding_y = slider_height;
+  //  create_controllers();
+  //  update();
+  //}
 
   void load_filters() {
     binary_screen.beginDraw();
@@ -104,8 +104,8 @@ class FilterManager {
       red_hpf = csv.getInt(i, 3);
       green_hpf = csv.getInt(i, 4);
       blue_hpf = csv.getInt(i, 5);
-      update();
-      save_filtered_image("autoFilter"+i+".png");
+      re_generate_filtered_map();
+      save_filtered_image_using_name("autoFilter"+i+".png");
       red_lpf = rlpf;
       green_lpf = glpf;
       blue_lpf = blpf;
@@ -113,10 +113,23 @@ class FilterManager {
       green_hpf = ghpf;
       blue_hpf = bhpf;
     }
-    update();
+    re_generate_filtered_map();
   }
 
   void update() {
+    //filter_screen.beginDraw(); 
+    //filter_screen.clear(); 
+    //filter_screen.image(map_filtered, 0, 0); 
+    //filter_screen.endDraw(); 
+    re_generate_filtered_map();
+    blend_screen.beginDraw(); 
+    blend_screen.clear(); 
+    blend_screen.image(origin.map, 0, 0); 
+    blend_screen.blend(map_filtered, 0, 0, map_filtered.width, map_filtered.height, 0, 0, origin.map.width, origin.map.height, SUBTRACT); 
+    blend_screen.endDraw();
+  }
+
+  void re_generate_filtered_map() {
     map_filtered = origin.map.copy(); 
     map_filtered.loadPixels(); 
     for (int i=0; i<map_filtered.pixels.length; i++) {
@@ -125,23 +138,10 @@ class FilterManager {
       float b = blue(map_filtered.pixels[i]); 
       int pix_bright = ceil(max(r, g, b)); 
       if (full_fill) pix_bright = 255; 
-      if ((r<=red_lpf && g<=green_lpf && b<=blue_lpf)&&(r>=red_hpf && g>=green_hpf && b>=blue_hpf))
-      { 
-        map_filtered.pixels[i] = color(r, g, b, pix_bright);
-      } else {
-        map_filtered.pixels[i] = color(0, pix_bright);
-      }
+      if ((r<=red_lpf && g<=green_lpf && b<=blue_lpf)&&(r>=red_hpf && g>=green_hpf && b>=blue_hpf)) map_filtered.pixels[i] = color(r, g, b, pix_bright);
+      else map_filtered.pixels[i] = color(0, pix_bright);
     }
-    map_filtered.updatePixels(); 
-    filter_screen.beginDraw(); 
-    filter_screen.clear(); 
-    filter_screen.image(map_filtered, 0, 0); 
-    filter_screen.endDraw(); 
-    blend_screen.beginDraw(); 
-    blend_screen.clear(); 
-    blend_screen.image(origin.map, 0, 0); 
-    blend_screen.blend(map_filtered, 0, 0, map_filtered.width, map_filtered.height, 0, 0, origin.map.width, origin.map.height, SUBTRACT); 
-    blend_screen.endDraw();
+    map_filtered.updatePixels();
   }
 
   void controlEvent(ControlEvent theEvent) {
@@ -166,7 +166,7 @@ class FilterManager {
         image(blend_screen, position.x, position.y+1); 
         text("Blend map mode", position.x+20, position.y+40);
       } else {
-        image(filter_screen, position.x, position.y+1); 
+        image(map_filtered, position.x, position.y+1); 
         text("Filter demo mode", position.x+20, position.y+40);
       }
   }
@@ -311,12 +311,12 @@ class FilterManager {
   void save_filtered_image() {
     filter_name = cp5.get(Textfield.class, "filter_name").getText(); 
     println("Saving filter as: "+filter_name); 
-    filter_screen.save(sketchPath("Filters\\"+filter_name));
+    map_filtered.save(sketchPath("Filters\\"+filter_name));
   }
 
-  void save_filtered_image(String name) {
+  void save_filtered_image_using_name(String name) {
     println("Saving filter as: "+name); 
-    filter_screen.save(sketchPath("Filters\\"+name));
+    map_filtered.save(sketchPath("Filters\\"+name));
   }
 
   void generate_starting_binary_warning() {
