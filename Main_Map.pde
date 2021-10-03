@@ -2,7 +2,6 @@ class MainMap {
   PVector position;
   PImage map;
   PGraphics map_screen;
-  PGraphics blend_screen;
   int w, h;
 
   MainMap(String name) {
@@ -14,17 +13,6 @@ class MainMap {
 
   void draw() {
     image(map, position.x, position.y);
-    draw_bounds();
-  }
-  
-  void draw_blend_screen(){
-    image(blend_screen, position.x, position.y);
-    draw_bounds();
-  }
-  
-  void draw_bounds() {
-    noFill();
-    stroke(255);
-    rect(position.x-1, position.y, w+2, h+2);
+    draw_bounds(int(position.x), int(position.y), w, h);
   }
 }

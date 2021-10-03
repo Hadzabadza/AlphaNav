@@ -3,7 +3,7 @@ class Node {
   float radius;
   int mass = 0;
 
-  Node(PVector _position, float _radius, int _mass) {
+  Node(PVector _position, int _mass) {
     position = _position.copy();
     radius = calculate_radius(_mass);
     mass = _mass;

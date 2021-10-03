@@ -67,7 +67,7 @@ class NodeManager {
       PVector center_of_mass = new PVector(0, 0);
       for (PVector n : pixel_position) center_of_mass.add(n);
       center_of_mass.div(pix_mass);
-      return new Node(center_of_mass, node_radius, pix_mass);
+      return new Node(center_of_mass, pix_mass);
     } else return null;
   }
 }

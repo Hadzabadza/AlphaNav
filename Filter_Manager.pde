@@ -14,6 +14,7 @@ class FilterManager {
 
   PGraphics filter_screen = createGraphics(origin.map.width, origin.map.height);
   PGraphics blend_screen = createGraphics(origin.map.width, origin.map.height);
+  PGraphics binary_screen = createGraphics(origin.map.width, origin.map.height);
 
   int red_lpf = 50;
   int green_lpf = 255;
@@ -32,9 +33,10 @@ class FilterManager {
 
   boolean full_fill = true;
   boolean toggled = false;
-  boolean show_origin = true;
+  boolean show_blend = true;
+  boolean show_binary = false;
 
-  PVector panel_position;
+  PVector position;
   PVector move_to = new PVector(0, 0);
   float move_speed = 0.1;
 
@@ -42,8 +44,8 @@ class FilterManager {
 
   FilterManager(MainMap origin) {
     //height-slider_height*2-90
-    panel_position = origin.position.copy();
-    move_to = panel_position.copy();
+    position = origin.position.copy();
+    move_to = position.copy();
     sliders_starting_x = round(origin.position.x+20);
     sliders_starting_y = round(origin.position.y)+ height-height/50*2-60;
     slider_width = origin.map.width/12;
@@ -51,13 +53,14 @@ class FilterManager {
     slider_padding_x = slider_width/2;
     slider_padding_y = slider_height;
     create_controllers();
+    generate_starting_binary_warning();
     update();
   }
 
-  FilterManager(PVector _panel_position, int _sliders_starting_x, int _sliders_starting_y, int _slider_width, int _slider_height) {
+  FilterManager(PVector _position, int _sliders_starting_x, int _sliders_starting_y, int _slider_width, int _slider_height) {
     //height-slider_height*2-90
-    panel_position = _panel_position.copy();
-    move_to = panel_position.copy();
+    position = _position.copy();
+    move_to = position.copy();
     sliders_starting_x = _sliders_starting_x;
     sliders_starting_y = _sliders_starting_y;
     slider_width = _slider_width;
@@ -68,27 +71,26 @@ class FilterManager {
     update();
   }
 
-  void load_and_apply_filters() {
+  void load_filters() {
     println(sketchPath());
     println(filters_folder);
-    origin.blend_screen = createGraphics(origin.w, origin.h);
-    origin.blend_screen.beginDraw();
-    origin.blend_screen.clear();
-    origin.blend_screen.image(origin.map, 0, 0);
-    origin.blend_screen.endDraw();
+    binary_screen.beginDraw();
+    binary_screen.clear();
+    binary_screen.image(origin.map, 0, 0);
+    binary_screen.endDraw();
 
     String[] filter_names = filters_folder.list(extfilter);
     filters = new PImage[filter_names.length];
     for (int i=0; i<filter_names.length; i++) {
-      origin.blend_screen.beginDraw();
+      binary_screen.beginDraw();
       filters[i] = loadImage(filters_folder+"\\"+filter_names[i]);
-      origin.blend_screen.blend(filters[i], 0, 0, filters[i].width, filters[i].height, 0, 0, origin.w, origin.h, SUBTRACT);
+      binary_screen.blend(filters[i], 0, 0, filters[i].width, filters[i].height, 0, 0, origin.w, origin.h, SUBTRACT);
       println("Loaded filter \""+filter_names[i]+"\"");
-      origin.blend_screen.endDraw();
+      binary_screen.endDraw();
     }
-    origin.blend_screen.beginDraw();
-    origin.blend_screen.filter(THRESHOLD, 0.01);
-    origin.blend_screen.endDraw();
+    binary_screen.beginDraw();
+    binary_screen.filter(THRESHOLD, 0.01);
+    binary_screen.endDraw();
     filters_loaded = true;
   } 
 
@@ -127,18 +129,33 @@ class FilterManager {
   void draw() {
     if (toggled) move_to.y = 0;
     else move_to.y = height;
-    if (panel_position.x!=move_to.x || panel_position.y!=move_to.y) move_panel();
+    if (position.x!=move_to.x || position.y!=move_to.y) move_panel();
 
     noFill();
     stroke(255);
-    rect(panel_position.x-1, panel_position.y, origin.map.width+2, origin.map.height+2);
-    if (show_origin) image(blend_screen, panel_position.x, panel_position.y+1);
-    else image(filter_screen, panel_position.x, panel_position.y+1);
+    rect(position.x-1, position.y, origin.map.width+2, origin.map.height+2);
+    fill (230);
+    textSize(24);
+    if (show_binary) {
+      image(binary_screen, position.x, position.y+1);
+      text("Binary map mode", position.x+20, position.y+40);
+    } else
+      if (show_blend) {
+        image(blend_screen, position.x, position.y+1);
+        text("Blend map mode", position.x+20, position.y+40);
+      } else {
+        image(filter_screen, position.x, position.y+1);
+        text("Filter demo mode", position.x+20, position.y+40);
+      }
   }
 
+  void draw_blend_screen() {
+    image(blend_screen, position.x, position.y);
+    draw_bounds(int(position.x), int(position.y), origin.w, origin.h);
+  }
 
   void create_controllers() {
-    filter_builders = new controlP5.Controller[11];
+    filter_builders = new controlP5.Controller[13];
     filter_builders[0] = cp5.addSlider("red_lpf")
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 0, 
       sliders_starting_y + (slider_height+slider_padding_y)*0)
@@ -187,34 +204,47 @@ class FilterManager {
       .setValue(blue_hpf)
       .plugTo(this);
 
-    filter_builders[6] = cp5.addToggle("show_origin")
+    filter_builders[6] = cp5.addToggle("show_blend")
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 6, 
       sliders_starting_y + (slider_height+slider_padding_y)*0)
       .setSize(slider_width, slider_height)
       .setValue(true)
       .plugTo(this);
+    filter_builders[6].getCaptionLabel().align(CENTER, CENTER);
 
-    filter_builders[7] = cp5.addToggle("full_fill")
+    filter_builders[7] = cp5.addToggle("show_binary")
+      .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 7, 
+      sliders_starting_y + (slider_height+slider_padding_y)*0)
+      .setSize(slider_width, slider_height)
+      .plugTo(this);
+    filter_builders[7].getCaptionLabel().align(CENTER, CENTER);
+
+    filter_builders[8] = cp5.addToggle("full_fill")
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 0, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
       .setValue(true)
       .plugTo(this);
+    filter_builders[8].getCaptionLabel().align(CENTER, CENTER);
 
-    //filter_builders[8] = cp5.addToggle("reverse_fill")
-    //  .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 1, 
-    //  sliders_starting_y + (slider_height+slider_padding_y)*1)
-    //  .setSize(slider_width, slider_height)
-    //  .plugTo(this);
+    filter_builders[9] = cp5.addButton("load_filters")
+      .setBroadcast(false)
+      .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 1, 
+      sliders_starting_y + (slider_height+slider_padding_y)*1)
+      .setSize(slider_width, slider_height)
+      .setBroadcast(true)
+      .plugTo(this);
 
-    filter_builders[8] = cp5.addTextfield("filter_name")
+    filter_builders[10] = cp5.addTextfield("filter_name")
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 5, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width*2, slider_height)
       .setValue(filter_name)
       .plugTo(this);
+    filter_builders[10].getCaptionLabel().getStyle().setPaddingLeft(10);
+    filter_builders[10].getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER);
 
-    filter_builders[9] = cp5.addButton("save_filtered_image")
+    filter_builders[11] = cp5.addButton("save_filtered_image")
       .setBroadcast(false)
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 7, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
@@ -222,23 +252,24 @@ class FilterManager {
       .setBroadcast(true)
       .plugTo(this);
 
-    filter_builders[10] = cp5.addToggle("toggled")
-      .setPosition(panel_position.x+origin.map.width+40, 
-      panel_position.y-slider_width/2)
+    filter_builders[12] = cp5.addToggle("toggled")
+      .setPosition(position.x+origin.map.width+2, 
+      position.y-slider_width/2)
       .setSize(slider_height, slider_width)
+      .setLabelVisible(false)
       .plugTo(this);
   }
 
   void move_panel() {
-    PVector move_diff = panel_position.copy().lerp(move_to, move_speed);
-    move_diff.sub(panel_position);
+    PVector move_diff = position.copy().lerp(move_to, move_speed);
+    move_diff.sub(position);
     for (int i=0; i<filter_builders.length; i++) {
       float[] pos = filter_builders[i].getPosition();
       pos[0]+=move_diff.x;
       pos[1]+=move_diff.y;
       filter_builders[i].setPosition(pos);
     }
-    panel_position.add(move_diff);
+    position.add(move_diff);
   }
 
   void save_filtered_image() {
@@ -250,5 +281,18 @@ class FilterManager {
     image_buffer.image(map_filtered, 0, 0);
     image_buffer.endDraw();
     image_buffer.save(sketchPath("Filters\\"+filter_name));
+  }
+
+  void generate_starting_binary_warning() {
+    binary_screen.beginDraw();
+    binary_screen.background(0, 150);
+    binary_screen.fill(230, 0, 0);
+    binary_screen.textSize(48);
+    binary_screen.textAlign(CENTER);
+    binary_screen.text("Binary map not generated!", binary_screen.width/2, binary_screen.height/2);
+    binary_screen.fill(230);
+    binary_screen.textSize(24);
+    binary_screen.text("Click \"Load filters\" to load filters and generate a binary map.", binary_screen.width/2, binary_screen.height/2+40);
+    binary_screen.endDraw();
   }
 }

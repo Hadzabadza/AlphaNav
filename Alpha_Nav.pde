@@ -30,31 +30,38 @@ void setup() {
 
 void draw() {
   clear();
-  if (!filters_loaded||nodes_built) {
-    if (fb.show_origin||!fb.toggled) origin.draw();} 
-    else origin.draw_blend_screen();
+  //if (!filters_loaded||nodes_built) {
+  //  if (fb.show_origin||!fb.toggled) origin.draw();
+  //} else origin.draw_blend_screen();
+  origin.draw();
   fb.draw();
   nb.draw();
 }
 
 void keyReleased() {
-  if (key==' ') fb.load_and_apply_filters();
-  if (key=='b'|| key=='B') nb.build_nodes(origin.blend_screen.get());
+  //if (key==' ') fb.load_and_apply_filters();
+  if (key=='b'|| key=='B') nb.build_nodes(fb.blend_screen.get());
+}
+
+void draw_bounds(int x, int y, int w, int h) {
+  noFill();
+  stroke(255);
+  rect(x-1, y, w+2, h+2);
 }
 
 void print_filter_pixel_from_mouse() {
   int searchX, searchY;
-  searchX = mouseX-round(fb.panel_position.x);
-  searchY = mouseY-round(fb.panel_position.y);
+  searchX = mouseX-round(fb.position.x);
+  searchY = mouseY-round(fb.position.y);
   if (searchX<0) searchX=0;
   if (searchY<0) searchY=0;
   if (searchX>origin.w) searchX=origin.w;
   if (searchY>origin.h) searchY=origin.h;
   //fill(200,0,0);
   stroke(0, 255, 0);
-  ellipse(fb.panel_position.x+searchX, fb.panel_position.y+searchY, 10, 10);
-  ellipse(fb.panel_position.x+searchX, fb.panel_position.y+searchY, 20, 20);
-  ellipse(fb.panel_position.x+searchX, fb.panel_position.y+searchY, 40, 40);
+  ellipse(fb.position.x+searchX, fb.position.y+searchY, 10, 10);
+  ellipse(fb.position.x+searchX, fb.position.y+searchY, 20, 20);
+  ellipse(fb.position.x+searchX, fb.position.y+searchY, 40, 40);
   fb.map_filtered.loadPixels();
   int pix = fb.map_filtered.get(searchX, searchY); 
   //println(searchX+" "+searchY+" "+red(pix)+" "+green(pix)+" "+blue(pix)+" "+alpha(pix));
