@@ -5,7 +5,8 @@ import java.io.File;
 //                    SETTINGS HERE                          //
 String map_name = "Mep.png";
 String filters_folder = "filters";
-int node_min_mass = 32;
+int node_min_mass = 25;
+color active_controls_color = color(10,80,150);
 //                                                           //
 ///////////////////////////////////////////////////////////////
 
@@ -15,8 +16,13 @@ MainMap origin;
 FilterManager fb;
 NodeManager nb;
 
+controlP5.Controller fb_toggle;
+
 boolean filters_loaded = false;
 boolean nodes_built = false;
+
+int paddingX;
+int paddingY;
 
 void setup() {
   //size(1000, 1000);
@@ -26,6 +32,13 @@ void setup() {
   fb = new FilterManager(origin);
   fb.filters_folder = new java.io.File(sketchPath(filters_folder));
   nb = new NodeManager();
+  fb_toggle = cp5.addToggle("toggled")
+    .setPosition(paddingX/8, paddingY + 20)
+    .setSize(paddingX/4*3, 25)
+    .setCaptionLabel("Filter manager")
+    .setColorActive(active_controls_color)
+    .plugTo(fb);
+  fb_toggle.getCaptionLabel().align(CENTER, CENTER);
 }
 
 void draw() {
@@ -40,7 +53,7 @@ void draw() {
 
 void keyReleased() {
   //if (key==' ') fb.load_and_apply_filters();
-  if (key=='b'|| key=='B') nb.build_nodes(fb.blend_screen.get());
+  if (key=='b'|| key=='B') nb.build_nodes(fb.binary_screen.get());
 }
 
 void draw_bounds(int x, int y, int w, int h) {

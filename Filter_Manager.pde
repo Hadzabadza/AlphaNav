@@ -77,18 +77,18 @@ class FilterManager {
     binary_screen.beginDraw();
     binary_screen.clear();
     binary_screen.image(origin.map, 0, 0);
-    binary_screen.endDraw();
+    //binary_screen.endDraw();
 
     String[] filter_names = filters_folder.list(extfilter);
     filters = new PImage[filter_names.length];
     for (int i=0; i<filter_names.length; i++) {
-      binary_screen.beginDraw();
+      //binary_screen.beginDraw();
       filters[i] = loadImage(filters_folder+"\\"+filter_names[i]);
       binary_screen.blend(filters[i], 0, 0, filters[i].width, filters[i].height, 0, 0, origin.w, origin.h, SUBTRACT);
       println("Loaded filter \""+filter_names[i]+"\"");
-      binary_screen.endDraw();
+      //binary_screen.endDraw();
     }
-    binary_screen.beginDraw();
+    //binary_screen.beginDraw();
     binary_screen.filter(THRESHOLD, 0.01);
     binary_screen.endDraw();
     filters_loaded = true;
@@ -134,7 +134,7 @@ class FilterManager {
     noFill();
     stroke(255);
     rect(position.x-1, position.y, origin.map.width+2, origin.map.height+2);
-    fill (230);
+    fill (255,180);
     textSize(24);
     if (show_binary) {
       image(binary_screen, position.x, position.y+1);
@@ -155,13 +155,14 @@ class FilterManager {
   }
 
   void create_controllers() {
-    filter_builders = new controlP5.Controller[13];
+    filter_builders = new controlP5.Controller[12];
     filter_builders[0] = cp5.addSlider("red_lpf")
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 0, 
       sliders_starting_y + (slider_height+slider_padding_y)*0)
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(red_lpf)
+      .setColorActive(active_controls_color)
       .plugTo(this);
 
     filter_builders[1] = cp5.addSlider("green_lpf")
@@ -170,6 +171,7 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(green_lpf)
+      .setColorActive(active_controls_color)
       .plugTo(this);
 
     filter_builders[2] = cp5.addSlider("blue_lpf")
@@ -178,6 +180,7 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(blue_lpf)
+      .setColorActive(active_controls_color)
       .plugTo(this);
 
     filter_builders[3] = cp5.addSlider("red_hpf")
@@ -186,6 +189,7 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(red_hpf)
+      .setColorActive(active_controls_color)
       .plugTo(this);
 
     filter_builders[4] = cp5.addSlider("green_hpf")
@@ -194,6 +198,7 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(green_hpf)
+      .setColorActive(active_controls_color)
       .plugTo(this);
 
     filter_builders[5] = cp5.addSlider("blue_hpf")
@@ -202,6 +207,7 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(blue_hpf)
+      .setColorActive(active_controls_color)
       .plugTo(this);
 
     filter_builders[6] = cp5.addToggle("show_blend")
@@ -209,6 +215,7 @@ class FilterManager {
       sliders_starting_y + (slider_height+slider_padding_y)*0)
       .setSize(slider_width, slider_height)
       .setValue(true)
+      .setColorActive(active_controls_color)
       .plugTo(this);
     filter_builders[6].getCaptionLabel().align(CENTER, CENTER);
 
@@ -216,6 +223,7 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 7, 
       sliders_starting_y + (slider_height+slider_padding_y)*0)
       .setSize(slider_width, slider_height)
+      .setColorActive(active_controls_color)
       .plugTo(this);
     filter_builders[7].getCaptionLabel().align(CENTER, CENTER);
 
@@ -224,6 +232,7 @@ class FilterManager {
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
       .setValue(true)
+      .setColorActive(active_controls_color)
       .plugTo(this);
     filter_builders[8].getCaptionLabel().align(CENTER, CENTER);
 
@@ -232,6 +241,7 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 1, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
+      .setColorActive(active_controls_color)
       .setBroadcast(true)
       .plugTo(this);
 
@@ -240,6 +250,7 @@ class FilterManager {
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width*2, slider_height)
       .setValue(filter_name)
+      .setColorActive(active_controls_color)
       .plugTo(this);
     filter_builders[10].getCaptionLabel().getStyle().setPaddingLeft(10);
     filter_builders[10].getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER);
@@ -249,14 +260,8 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 7, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
+      .setColorActive(active_controls_color)
       .setBroadcast(true)
-      .plugTo(this);
-
-    filter_builders[12] = cp5.addToggle("toggled")
-      .setPosition(position.x+origin.map.width+2, 
-      position.y-slider_width/2)
-      .setSize(slider_height, slider_width)
-      .setLabelVisible(false)
       .plugTo(this);
   }
 
@@ -275,12 +280,12 @@ class FilterManager {
   void save_filtered_image() {
     filter_name = cp5.get(Textfield.class, "filter_name").getText();
     println("Saving filter as: "+filter_name);
-    PGraphics image_buffer = createGraphics(map_filtered.width, map_filtered.height);
-    image_buffer.beginDraw();
-    image_buffer.background(0);
-    image_buffer.image(map_filtered, 0, 0);
-    image_buffer.endDraw();
-    image_buffer.save(sketchPath("Filters\\"+filter_name));
+    //PGraphics image_buffer = createGraphics(map_filtered.width, map_filtered.height);
+    //image_buffer.beginDraw();
+    //image_buffer.background(0);
+    //image_buffer.image(map_filtered, 0, 0);
+    //image_buffer.endDraw();
+    filter_screen.save(sketchPath("Filters\\"+filter_name));
   }
 
   void generate_starting_binary_warning() {

@@ -6,7 +6,9 @@ class MainMap {
 
   MainMap(String name) {
     map = loadImage(sketchPath("data\\"+name));
-    position= new PVector ((width-map.width)/2, 0);
+    paddingX = (width-map.width)/2;
+    paddingY = 0;
+    position= new PVector (paddingX, paddingY);
     w = map.width;
     h = map.height;
   }
