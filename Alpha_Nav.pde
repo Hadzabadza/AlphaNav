@@ -3,7 +3,7 @@ import java.io.File;
 
 ///////////////////////////////////////////////////////////////
 //                    SETTINGS HERE                          //
-String map_name = "Mep1.png";
+String map_name = "Mep.png";
 String csv_name = "BaseFilters.csv";
 String filters_folder = "filters";
 int node_min_mass = 32;
