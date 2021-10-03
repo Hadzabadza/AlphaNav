@@ -43,7 +43,6 @@ class FilterManager {
   controlP5.Controller[] filter_builders;
 
   FilterManager(MainMap origin) {
-    //height-slider_height*2-90
     position = origin.position.copy();
     move_to = position.copy();
     sliders_starting_x = round(origin.position.x+20);
@@ -58,7 +57,6 @@ class FilterManager {
   }
 
   FilterManager(PVector _position, int _sliders_starting_x, int _sliders_starting_y, int _slider_width, int _slider_height) {
-    //height-slider_height*2-90
     position = _position.copy();
     move_to = position.copy();
     sliders_starting_x = _sliders_starting_x;
@@ -72,23 +70,17 @@ class FilterManager {
   }
 
   void load_filters() {
-    println(sketchPath());
-    println(filters_folder);
     binary_screen.beginDraw();
     binary_screen.clear();
     binary_screen.image(origin.map, 0, 0);
-    //binary_screen.endDraw();
 
     String[] filter_names = filters_folder.list(extfilter);
     filters = new PImage[filter_names.length];
     for (int i=0; i<filter_names.length; i++) {
-      //binary_screen.beginDraw();
       filters[i] = loadImage(filters_folder+"\\"+filter_names[i]);
       binary_screen.blend(filters[i], 0, 0, filters[i].width, filters[i].height, 0, 0, origin.w, origin.h, SUBTRACT);
       println("Loaded filter \""+filter_names[i]+"\"");
-      //binary_screen.endDraw();
     }
-    //binary_screen.beginDraw();
     binary_screen.filter(THRESHOLD, 0.01);
     binary_screen.endDraw();
     filters_loaded = true;
@@ -280,11 +272,6 @@ class FilterManager {
   void save_filtered_image() {
     filter_name = cp5.get(Textfield.class, "filter_name").getText();
     println("Saving filter as: "+filter_name);
-    //PGraphics image_buffer = createGraphics(map_filtered.width, map_filtered.height);
-    //image_buffer.beginDraw();
-    //image_buffer.background(0);
-    //image_buffer.image(map_filtered, 0, 0);
-    //image_buffer.endDraw();
     filter_screen.save(sketchPath("Filters\\"+filter_name));
   }
 

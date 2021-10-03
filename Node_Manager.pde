@@ -47,8 +47,6 @@ class NodeManager {
     int pix = _x+_y*w;
     map_binary.pixels[pix] = color(0);
     pixel_position.add(new PVector(_x, _y));
-    //println(l, w, h);
-    //println(pix, _x, _y);
     if (_x!=0) if (red(map_binary.pixels[pix-1])>0) pixel_step(_x-1, _y);
     if (_y!=0) if (red(map_binary.pixels[pix-_y*w])>0) pixel_step(_x, _y-1);
     if (_x!=map_binary.width-1) if (red(map_binary.pixels[pix+1])>0) pixel_step(_x+1, _y);

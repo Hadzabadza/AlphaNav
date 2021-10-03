@@ -7,13 +7,10 @@ class Node {
     position = _position.copy();
     radius = calculate_radius(_mass);
     mass = _mass;
-    //println("Node created at "+position.x+" "+position.y);
   } 
 
   void draw(PVector offset) {
     noFill();
-    //if (mass<node_min_mass) stroke (0,0,0,0);
-    //else 
     stroke(0, 255, 0, round(130+40*sin(float(frameCount)/50)));
     strokeWeight(2);
     ellipse(position.x+offset.x, position.y+offset.y, radius*2, radius*2);
