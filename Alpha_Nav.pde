@@ -4,8 +4,9 @@ import java.io.File;
 ///////////////////////////////////////////////////////////////
 //                    SETTINGS HERE                          //
 String map_name = "Mep.png";
+String csv_name = "BaseFilters.csv";
 String filters_folder = "filters";
-int node_min_mass = 25;
+int node_min_mass = 32;
 color active_controls_color = color(10,80,150);
 //                                                           //
 ///////////////////////////////////////////////////////////////
@@ -52,7 +53,7 @@ void draw() {
 }
 
 void keyReleased() {
-  //if (key==' ') fb.load_and_apply_filters();
+  if (key==' ') fb.build_filters_csv();
   if (key=='b'|| key=='B') nb.build_nodes(fb.binary_screen.get());
 }
 

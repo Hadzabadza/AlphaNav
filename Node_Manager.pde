@@ -9,7 +9,6 @@ class NodeManager {
   ArrayList<PVector> pixel_position;
 
   NodeManager() {
-    preliminary_nodes = new ArrayList<Node>();
     node_offset = origin.position;
   }
 
@@ -18,6 +17,7 @@ class NodeManager {
   }
 
   void build_nodes(PImage _map_binary) {
+    preliminary_nodes = new ArrayList<Node>();
     map_binary = _map_binary.copy();
     w = map_binary.get().width;
     h = map_binary.get().height;
