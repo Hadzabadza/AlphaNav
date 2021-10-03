@@ -26,7 +26,6 @@ int paddingX;
 int paddingY;
 
 void setup() {
-  //size(1000, 1000);
   fullScreen();
   origin = new MainMap(map_name);
   cp5 = new ControlP5(this);
@@ -44,9 +43,6 @@ void setup() {
 
 void draw() {
   clear();
-  //if (!filters_loaded||nodes_built) {
-  //  if (fm.show_origin||!fm.toggled) origin.draw();
-  //} else origin.draw_blend_screen();
   origin.draw();
   fm.draw();
   nb.draw();
@@ -61,22 +57,4 @@ void draw_bounds(int x, int y, int w, int h) {
   noFill();
   stroke(255);
   rect(x-1, y, w+2, h+2);
-}
-
-void print_filter_pixel_from_mouse() {
-  int searchX, searchY;
-  searchX = mouseX-round(fm.position.x);
-  searchY = mouseY-round(fm.position.y);
-  if (searchX<0) searchX=0;
-  if (searchY<0) searchY=0;
-  if (searchX>origin.w) searchX=origin.w;
-  if (searchY>origin.h) searchY=origin.h;
-  //fill(200,0,0);
-  stroke(0, 255, 0);
-  ellipse(fm.position.x+searchX, fm.position.y+searchY, 10, 10);
-  ellipse(fm.position.x+searchX, fm.position.y+searchY, 20, 20);
-  ellipse(fm.position.x+searchX, fm.position.y+searchY, 40, 40);
-  fm.map_filtered.loadPixels();
-  int pix = fm.map_filtered.get(searchX, searchY); 
-  //println(searchX+" "+searchY+" "+red(pix)+" "+green(pix)+" "+blue(pix)+" "+alpha(pix));
 }

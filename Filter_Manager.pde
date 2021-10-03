@@ -46,8 +46,7 @@ class FilterManager {
     int control_columns = 8;
     int free_vertical_space = height - origin.h;
     
-    
-    position = new PVector(origin.position.x, height);//origin.position.copy();
+    position = new PVector(origin.position.x, height);
     move_to = position.copy();
 
     slider_width = width/12;
@@ -63,19 +62,6 @@ class FilterManager {
     generate_starting_binary_warning();
     update();
   }
-
-  //FilterManager(PVector _position, int _sliders_starting_x, int _sliders_starting_y, int _slider_width, int _slider_height) {
-  //  position = _position.copy();
-  //  move_to = position.copy();
-  //  sliders_starting_x = _sliders_starting_x;
-  //  sliders_starting_y = _sliders_starting_y;
-  //  slider_width = _slider_width;
-  //  slider_height = _slider_height;
-  //  slider_padding_x = slider_width/2;
-  //  slider_padding_y = slider_height;
-  //  create_controllers();
-  //  update();
-  //}
 
   void load_filters() {
     binary_screen.beginDraw();
@@ -125,10 +111,6 @@ class FilterManager {
   }
 
   void update() {
-    //filter_screen.beginDraw(); 
-    //filter_screen.clear(); 
-    //filter_screen.image(map_filtered, 0, 0); 
-    //filter_screen.endDraw(); 
     re_generate_filtered_map();
     blend_screen.beginDraw(); 
     blend_screen.clear(); 
