@@ -43,14 +43,22 @@ class FilterManager {
   controlP5.Controller[] filter_builders;
 
   FilterManager(MainMap origin) {
+    int control_columns = 8;
+    int free_vertical_space = height - origin.h;
+    
+    
     position = new PVector(origin.position.x, height);//origin.position.copy();
     move_to = position.copy();
+
     slider_width = width/12;
     slider_height = slider_width/6;
-    sliders_starting_x = 20;
-    sliders_starting_y = round(position.y) + origin.h + slider_height*2;
+
     slider_padding_x = slider_width/2;
-    slider_padding_y = slider_height;
+    slider_padding_y = min(slider_height, (free_vertical_space-slider_height*2)/3);
+
+    sliders_starting_x = (width-(control_columns*slider_width+(control_columns-1)*slider_padding_x))/2;
+    sliders_starting_y = round(position.y) + origin.h + slider_padding_y;
+
     create_controllers();
     generate_starting_binary_warning();
     update();
