@@ -19,8 +19,10 @@ class Node {
 
   Node check_collision_with_node(Node other) {
     if (other==this) return null;
-    if (mass<other.mass) if (dist(position.x, position.y, other.position.x, other.position.y)<other.radius) return this; else return null;
-    else if (dist(position.x, position.y, other.position.x, other.position.y)<radius) return other; else return null;
+    if (mass<other.mass) if (dist(position.x, position.y, other.position.x, other.position.y)<other.radius) return this; 
+    else return null;
+    else if (dist(position.x, position.y, other.position.x, other.position.y)<radius) return other; 
+    else return null;
   }
 
   void merge_nodes(Node other) {
@@ -38,8 +40,8 @@ class Node {
       return collision_victim;
     } else return null;
   }
-  
-  float calculate_radius(int mass){
+
+  float calculate_radius(int mass) {
     return sqrt(mass/1.5);
   }
 }

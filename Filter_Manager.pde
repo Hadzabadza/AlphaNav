@@ -32,7 +32,7 @@ class FilterManager {
   int sliders_starting_y;
 
   boolean full_fill = true;
-  boolean toggled = false;
+  boolean fm_toggled = false;
   boolean show_blend = true;
   boolean show_binary = false;
 
@@ -45,7 +45,7 @@ class FilterManager {
   FilterManager(MainMap origin) {
     int control_columns = 8;
     int free_vertical_space = height - origin.h;
-    
+
     position = new PVector(origin.position.x, height);
     move_to = position.copy();
 
@@ -139,7 +139,7 @@ class FilterManager {
   }
 
   void draw() {
-    if (toggled) move_to.y = 0; 
+    if (fm_toggled) move_to.y = 0; 
     else move_to.y = height; 
     if (position.x!=move_to.x || position.y!=move_to.y) move_panel(); 
 
@@ -174,7 +174,6 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(red_lpf)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
 
     filter_builders[1] = cp5.addSlider("green_lpf")
@@ -183,7 +182,6 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(green_lpf)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
 
     filter_builders[2] = cp5.addSlider("blue_lpf")
@@ -192,7 +190,6 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(blue_lpf)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
 
     filter_builders[3] = cp5.addSlider("red_hpf")
@@ -201,7 +198,6 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(red_hpf)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
 
     filter_builders[4] = cp5.addSlider("green_hpf")
@@ -210,7 +206,6 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(green_hpf)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
 
     filter_builders[5] = cp5.addSlider("blue_hpf")
@@ -219,7 +214,6 @@ class FilterManager {
       .setSize(slider_width, slider_height)
       .setRange(0, 255)
       .setValue(blue_hpf)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
 
     filter_builders[6] = cp5.addToggle("show_blend")
@@ -227,7 +221,6 @@ class FilterManager {
       sliders_starting_y + (slider_height+slider_padding_y)*0)
       .setSize(slider_width, slider_height)
       .setValue(true)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
     filter_builders[6].getCaptionLabel().align(CENTER, CENTER); 
 
@@ -235,7 +228,6 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 7, 
       sliders_starting_y + (slider_height+slider_padding_y)*0)
       .setSize(slider_width, slider_height)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
     filter_builders[7].getCaptionLabel().align(CENTER, CENTER); 
 
@@ -244,7 +236,6 @@ class FilterManager {
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
       .setValue(true)
-      .setColorActive(active_controls_color)
       .plugTo(this); 
     filter_builders[8].getCaptionLabel().align(CENTER, CENTER); 
 
@@ -253,7 +244,6 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 1, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
-      .setColorActive(active_controls_color)
       .setBroadcast(true)
       .plugTo(this); 
 
@@ -262,7 +252,6 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 2, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
-      .setColorActive(active_controls_color)
       .setBroadcast(true)
       .plugTo(this); 
 
@@ -271,7 +260,7 @@ class FilterManager {
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width*2, slider_height)
       .setValue(filter_name)
-      .setColorActive(active_controls_color)
+
       .plugTo(this); 
     filter_builders[11].getCaptionLabel().getStyle().setPaddingLeft(10); 
     filter_builders[11].getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, CENTER); 
@@ -281,7 +270,6 @@ class FilterManager {
       .setPosition(sliders_starting_x + (slider_width+slider_padding_x)* 7, 
       sliders_starting_y + (slider_height+slider_padding_y)*1)
       .setSize(slider_width, slider_height)
-      .setColorActive(active_controls_color)
       .setBroadcast(true)
       .plugTo(this);
   }
@@ -310,15 +298,15 @@ class FilterManager {
   }
 
   void generate_starting_binary_warning() {
-    binary_screen.beginDraw(); 
-    binary_screen.background(0, 150); 
-    binary_screen.fill(230, 0, 0); 
-    binary_screen.textSize(48); 
-    binary_screen.textAlign(CENTER); 
-    binary_screen.text("Binary map not generated!", binary_screen.width/2, binary_screen.height/2); 
-    binary_screen.fill(230); 
-    binary_screen.textSize(24); 
-    binary_screen.text("Click \"Load filters\" to load filters and generate a binary map.", binary_screen.width/2, binary_screen.height/2+40); 
+    binary_screen.beginDraw();
+    binary_screen.background(0, 150);
+    binary_screen.fill(230, 0, 0);
+    binary_screen.textSize(48);
+    binary_screen.textAlign(CENTER);
+    binary_screen.text("Binary map not generated!", binary_screen.width/2, binary_screen.height/2);
+    binary_screen.fill(230);
+    binary_screen.textSize(24);
+    binary_screen.text("Click \"Load filters\" to load filters and generate a binary map.", binary_screen.width/2, binary_screen.height/2+40);
     binary_screen.endDraw();
   }
 }
