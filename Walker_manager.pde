@@ -1,0 +1,3 @@
+class WalkerManager {
+  GeneticWalker pops;
+}
