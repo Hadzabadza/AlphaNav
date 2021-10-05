@@ -41,7 +41,7 @@ class GeneticWalker {
     Node end;
     lines.beginDraw();
     lines.clear();
-    lines.stroke(255, 0, 0);
+    lines.stroke(255);
     for (int i = 0; i < sequence.length-1; ++i) {
       start = nodes[sequence[i]];
       end = nodes[sequence[i+1]];
@@ -82,4 +82,55 @@ class GeneticWalker {
       for (int j = random_node; j<i; j++) temp_indices[j]=temp_indices[j+1];
     }
   }
+
+    void shuffle_genes_around_subsequences(int[][] subsequences){
+    int total_subsequences_length = 0;
+    for (int i = 0; i<subsequences.length; i++) 
+    {
+      int subsequence_length = subsequences[i][1]-subsequences[i][0]+1;
+      subsequences[i][2] = subsequence_length;
+      total_subsequences_length += subsequence_length;
+    }
+
+    int[] temp_indices = new int[sequence.length-total_subsequences_length];
+    int sequence_index = 0;
+
+    int subsequences_reached = 0;
+    int sequence_skip = 0;
+    for (int i = 0; i < temp_indices.length; ++i) {
+      for (int j = subsequences_reached; j<subsequences.length; j++) 
+        if (i>=subsequences[j][0]) 
+        {
+          sequence_skip += subsequences[j][2];
+          subsequences_reached ++;
+        }
+      sequence_index = i+sequence_skip;
+
+      // println(temp_indices.length, subsequence_length, i, sequence_index);
+      temp_indices[i]=sequence[sequence_index];
+    } 
+
+    for (int i = temp_indices.length-1; i>=0; i--) {
+
+      subsequences_reached = 0;
+      sequence_skip = 0;
+      for (int j = subsequences_reached; j<subsequences.length; j++) 
+        if (i>=subsequences[j][0]) 
+        {
+          sequence_skip += subsequences[j][2];
+          subsequences_reached ++;
+        }
+      sequence_index = i+sequence_skip;
+
+      int random_node = ceil(random(-0.99, i));
+      // if (i>=subsequence_starting_index) sequence_index = i + subsequence_length;
+      // else sequence_index = i;
+      sequence[sequence_index] = temp_indices[random_node];
+      for (int j = random_node; j<i; j++) temp_indices[j] = temp_indices[j+1];
+    }
+  }
+
+  // int subsequence_skip(int index, int subse){
+
+  // }
 }

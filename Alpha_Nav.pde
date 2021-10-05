@@ -110,13 +110,7 @@ void keyReleased() {
   if (key=='b'|| key=='B') {
     nm.build_nodes();
     walkers = new GeneticWalker[100];
-    // tester = new GeneticWalker(nm.nodes);
     for (int i = 0; i < walkers.length; ++i) walkers[i] = new GeneticWalker(nm.nodes); 
-    // println(tester.sequence.length);
-    // for (int gen:tester.sequence) print(gen+" ");
-    // println();
-    // tester.shuffle_genes_around_subsequence(60,71);
-    // for (int gen:tester.sequence) print(gen+" ");
     walkers_unleashed=true;
   }
 }
