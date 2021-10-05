@@ -15,6 +15,6 @@ class MainMap {
 
   void draw() {
     image(map, position.x, position.y);
-    draw_bounds(int(position.x), int(position.y), w, h);
+    draw_bounds(int(position.x), int(position.y), w, h, main_map_bounds_color);
   }
 }

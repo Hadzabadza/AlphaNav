@@ -29,9 +29,6 @@ FilterManager fm;
 NodeManager nm;
 WalkerManager wm;
 
-GeneticWalker[] walkers;
-// GeneticWalker tester;
-
 controlP5.Toggle fm_switch;
 controlP5.Toggle nm_switch;
 controlP5.Toggle wm_switch;
@@ -42,6 +39,8 @@ boolean walkers_unleashed = false;
 
 int paddingX;
 int paddingY;
+
+color main_map_bounds_color = color(255);
 
 void setup() {
   fullScreen();
@@ -91,32 +90,16 @@ void draw() {
   origin.draw();
   fm.draw();
   nm.draw();
-  if (walkers_unleashed) {
-    GeneticWalker best_walker = null;
-    float best_path = walkers[0].distance;
-    for (GeneticWalker gw : walkers) {
-      if (gw.distance<best_path) {
-        best_walker = gw;
-        best_path = gw.distance;
-      }
-    }
-    if (best_walker.lines == null) best_walker.generate_lines();
-    best_walker.draw();
-  }
+  wm.draw();
 }
 
 void keyReleased() {
   if (key==' ') fm.fm_toggle();
-  if (key=='b'|| key=='B') {
-    nm.build_nodes();
-    walkers = new GeneticWalker[100];
-    for (int i = 0; i < walkers.length; ++i) walkers[i] = new GeneticWalker(nm.nodes); 
-    walkers_unleashed=true;
-  }
+  if (key=='b'|| key=='B') nm.build_nodes();
 }
 
-void draw_bounds(int x, int y, int w, int h) {
+void draw_bounds(int x, int y, int w, int h, color c) {
   noFill();
-  stroke(255);
+  stroke(c);
   rect(x-1, y, w+2, h+2);
 }

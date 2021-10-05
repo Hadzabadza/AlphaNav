@@ -60,11 +60,10 @@ class GeneticWalker {
     image(lines, nm.position.x, nm.position.y);
   }
 
-  void splice_genes(GeneticWalker with){
-
+  void splice_genes(GeneticWalker with) {
   }
 
-  void shuffle_genes_around_subsequence(int subsequence_starting_index, int subsequence_ending_index){
+  void shuffle_genes_around_subsequence(int subsequence_starting_index, int subsequence_ending_index) {
     int subsequence_length = subsequence_ending_index-subsequence_starting_index+1;
     int sequence_index = 0;
     int[] temp_indices = new int[sequence.length-subsequence_length];
@@ -83,7 +82,7 @@ class GeneticWalker {
     }
   }
 
-    void shuffle_genes_around_subsequences(int[][] subsequences){
+  void shuffle_genes_around_subsequences(int[][] subsequences) {
     int total_subsequences_length = 0;
     for (int i = 0; i<subsequences.length; i++) 
     {
@@ -99,14 +98,13 @@ class GeneticWalker {
     int sequence_skip = 0;
     for (int i = 0; i < temp_indices.length; ++i) {
       for (int j = subsequences_reached; j<subsequences.length; j++) 
-        if (i>=subsequences[j][0]) 
+        if (i+sequence_skip>=subsequences[j][0]) 
         {
           sequence_skip += subsequences[j][2];
           subsequences_reached ++;
         }
       sequence_index = i+sequence_skip;
 
-      // println(temp_indices.length, subsequence_length, i, sequence_index);
       temp_indices[i]=sequence[sequence_index];
     } 
 
@@ -115,7 +113,7 @@ class GeneticWalker {
       subsequences_reached = 0;
       sequence_skip = 0;
       for (int j = subsequences_reached; j<subsequences.length; j++) 
-        if (i>=subsequences[j][0]) 
+        if (i+sequence_skip>=subsequences[j][0]) 
         {
           sequence_skip += subsequences[j][2];
           subsequences_reached ++;
@@ -123,8 +121,6 @@ class GeneticWalker {
       sequence_index = i+sequence_skip;
 
       int random_node = ceil(random(-0.99, i));
-      // if (i>=subsequence_starting_index) sequence_index = i + subsequence_length;
-      // else sequence_index = i;
       sequence[sequence_index] = temp_indices[random_node];
       for (int j = random_node; j<i; j++) temp_indices[j] = temp_indices[j+1];
     }
