@@ -210,17 +210,22 @@ class NodeManager {
     //   .setSize(slider_width, slider_height)
     //   .setBroadcast(true)
     //   .plugTo(this);
-}
-
-void move_panel() {
-  PVector move_diff = position.copy().lerp(move_to, move_speed); 
-  move_diff.sub(position); 
-  for (int i=0; i<node_handlers.length; i++) {
-    float[] pos = node_handlers[i].getPosition(); 
-    pos[0]+=move_diff.x; 
-    pos[1]+=move_diff.y; 
-    node_handlers[i].setPosition(pos);
   }
-  position.add(move_diff);
-}
+
+  void move_panel() {
+    PVector move_diff = position.copy().lerp(move_to, move_speed); 
+    move_diff.sub(position); 
+    for (int i=0; i<node_handlers.length; i++) {
+      float[] pos = node_handlers[i].getPosition(); 
+      pos[0]+=move_diff.x; 
+      pos[1]+=move_diff.y; 
+      node_handlers[i].setPosition(pos);
+    }
+    position.add(move_diff);
+  }
+  void nm_toggle() {
+    nm_toggled = !nm_toggled;
+    // fm_switch.setState(false);
+    // wm_switch.setState(false);
+  }
 }

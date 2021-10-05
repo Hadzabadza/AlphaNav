@@ -309,4 +309,10 @@ class FilterManager {
     binary_screen.text("Click \"Load filters\" to load filters and generate a binary map.", binary_screen.width/2, binary_screen.height/2+40);
     binary_screen.endDraw();
   }
+
+  void fm_toggle() {
+    fm_toggled = !fm_toggled;
+    // nm_switch.setState(false);
+    // wm_switch.setState(false);
+  }
 }

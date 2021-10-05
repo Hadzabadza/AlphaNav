@@ -10,3 +10,4 @@ application.macosx
 out
 *.sublime-project
 *.sublime-workspace
+*.autosave

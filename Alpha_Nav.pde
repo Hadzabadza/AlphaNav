@@ -15,6 +15,10 @@ color fm_active_controls_color = color(0, 105, 180);
 color nm_background_color = color(0, 90, 45);
 color nm_foreground_color = color(0, 130, 60);
 color nm_active_controls_color = color(0, 180, 105);
+
+color wm_background_color = color(90, 0, 45);
+color wm_foreground_color = color(130, 0, 60);
+color wm_active_controls_color = color(180, 0, 105);
 //                                                           //
 ///////////////////////////////////////////////////////////////
 
@@ -23,11 +27,14 @@ ControlP5 cp5;
 MainMap origin;
 FilterManager fm;
 NodeManager nm;
+WalkerManager wm;
 
 GeneticWalker[] walkers;
+// GeneticWalker tester;
 
-controlP5.Controller fm_toggle;
-controlP5.Controller nm_toggle;
+controlP5.Toggle fm_switch;
+controlP5.Toggle nm_switch;
+controlP5.Toggle wm_switch;
 
 boolean filters_loaded = false;
 boolean nodes_built = false;
@@ -47,16 +54,16 @@ void setup() {
     .setColorActive(fm_active_controls_color);
   fm = new FilterManager(origin);
   fm.filters_folder = new java.io.File(sketchPath(filters_folder));
-  fm_toggle = cp5.addToggle("fm_toggled")
+  fm_switch = cp5.addToggle("fm_toggle")
     .setPosition(paddingX/8, paddingY + 20)
     .setSize(paddingX/4*3, 25)
     .setCaptionLabel("Filter manager")
     .plugTo(fm);
-  fm_toggle.getCaptionLabel().align(CENTER, CENTER);
+  fm_switch.getCaptionLabel().align(CENTER, CENTER);
 
   nm = new NodeManager(origin);
 
-  nm_toggle = cp5.addToggle("nm_toggled")
+  nm_switch = cp5.addToggle("nm_toggle")
     .setPosition(paddingX/8, paddingY + 50)
     .setSize(paddingX/4*3, 25)
     .setCaptionLabel("Node manager")
@@ -64,7 +71,19 @@ void setup() {
     .setColorForeground(nm_foreground_color)
     .setColorActive(nm_active_controls_color)
     .plugTo(nm);
-  nm_toggle.getCaptionLabel().align(CENTER, CENTER);
+  nm_switch.getCaptionLabel().align(CENTER, CENTER);
+
+  wm = new WalkerManager();
+
+  wm_switch = cp5.addToggle("wm_toggle")
+    .setPosition(paddingX/8, paddingY + 80)
+    .setSize(paddingX/4*3, 25)
+    .setCaptionLabel("Walker manager")
+    .setColorBackground(wm_background_color)  
+    .setColorForeground(wm_foreground_color)
+    .setColorActive(wm_active_controls_color)
+    .plugTo(wm);
+  wm_switch.getCaptionLabel().align(CENTER, CENTER);
 }
 
 void draw() {
@@ -87,11 +106,17 @@ void draw() {
 }
 
 void keyReleased() {
-  if (key==' ') fm.build_filters_csv();
+  if (key==' ') fm.fm_toggle();
   if (key=='b'|| key=='B') {
     nm.build_nodes();
     walkers = new GeneticWalker[100];
+    // tester = new GeneticWalker(nm.nodes);
     for (int i = 0; i < walkers.length; ++i) walkers[i] = new GeneticWalker(nm.nodes); 
+    // println(tester.sequence.length);
+    // for (int gen:tester.sequence) print(gen+" ");
+    // println();
+    // tester.shuffle_genes_around_subsequence(60,71);
+    // for (int gen:tester.sequence) print(gen+" ");
     walkers_unleashed=true;
   }
 }
