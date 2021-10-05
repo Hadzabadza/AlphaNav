@@ -32,7 +32,7 @@ class GeneticWalker {
       float y2 = end.position.y;//+end.radius*sin(angle);
       distance += dist(x1, y1, x2, y2);
     }
-    println(distance);
+    // println(distance);
   }
 
   void generate_lines() {
@@ -57,7 +57,8 @@ class GeneticWalker {
 
   void draw() {
     // update();
-    image(lines, nm.position.x, nm.position.y);
+    if (lines == null) generate_lines();
+    image(lines, wm.position.x, wm.position.y);
   }
 
   void splice_genes(GeneticWalker with) {

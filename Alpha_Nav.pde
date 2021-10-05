@@ -94,8 +94,7 @@ void draw() {
 }
 
 void keyReleased() {
-  if (key==' ') fm.fm_toggle();
-  if (key=='b'|| key=='B') nm.build_nodes();
+  if (key==' ') wm.update();
 }
 
 void draw_bounds(int x, int y, int w, int h, color c) {
