@@ -20,31 +20,31 @@ class WalkerManager {
   void create_walkers() {
     for (int i = 0; i < walkers.length; ++i) walkers[i] = new GeneticWalker(nm.nodes); 
     walkers_unleashed=true;
-    update();
+    walkers = mergesort_walkers(walkers);
   }
 
-  void update(){
+  void nextgen(){
+    for (int i=1; i<100; i++) {
+      float copy_level = float(max(10, i-4))/100;
+      walkers[i].splice_genes(walkers[0], copy_level);
+    }
+    for (int i=100; i<walkers.length; i++) walkers[i].generate_path();
     walkers = mergesort_walkers(walkers);
-    // for (int i =0; i<walkers.length; i++) {
-    //   println(i+" "+walkers[i].distance);
-    // }
   }
 
   void draw() {
     wm_panel.draw();
-    // if (walkers_unleashed) {
-    //   GeneticWalker best_walker = null;
-    //   float best_path = walkers[0].distance;
-    //   for (GeneticWalker gw : walkers) {
-    //     if (gw.distance<best_path) {
-    //       best_walker = gw;
-    //       best_path = gw.distance;
-    //     }
-    //   }
-    //   if (best_walker.lines == null) best_walker.generate_lines();
-    //   best_walker.draw();
-    // }
-    if (walkers_unleashed) walkers[0].draw();
+    if (walkers_unleashed) {
+      // walkers[0].draw();
+      fill(wm_active_controls_color);
+      for (int i=0; i<10; i++) {
+        if (i>0) walkers[i].draw(50);
+        else walkers[i].draw(250);
+        text(walkers[i].distance, position.x+origin.w, position.y+20+i*24);
+      }
+      tint(255);
+      nextgen();
+    }
   }
 
   void create_controllers() {

@@ -1,5 +1,6 @@
 import controlP5.*;
 import java.io.File;
+import java.util.Map;
 
 ///////////////////////////////////////////////////////////////
 //                    SETTINGS HERE                          //
@@ -94,7 +95,7 @@ void draw() {
 }
 
 void keyReleased() {
-  if (key==' ') wm.update();
+  if (key==' ') wm.nextgen();
 }
 
 void draw_bounds(int x, int y, int w, int h, color c) {
