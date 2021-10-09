@@ -16,7 +16,8 @@ class GeneticWalker {
   }
 
   void generate_sequence() {
-    sequence = new int[nodes.length];
+    if (nm.start!=null&&nm.finish!=null&&nm.start==nm.finish) sequence = new int[nodes.length+1];
+    else sequence = new int[nodes.length];
     lines = null;
     start_offset = 0;
     start_id = 0;
@@ -32,7 +33,7 @@ class GeneticWalker {
       finish_id = nm.finish.id;
       sequence[sequence.length-1]=finish_id;
     }
-    int[] temp_indices = new int[nodes.length-start_offset-finish_offset];
+    int[] temp_indices = new int[sequence.length-start_offset-finish_offset];
     int index_offset;
     for (int i = 0; i < temp_indices.length; ++i) {
       index_offset = 0;
@@ -48,15 +49,10 @@ class GeneticWalker {
     int sequence_index;
     for (int i = temp_indices.length-1; i>=0; i--) {
       int random_node = ceil(random(-0.99, i));
-      index_offset = 0;
       sequence_index = temp_indices.length-1-i;
-      if (sequence_index>=start_id) index_offset+=start_offset;
-      if (sequence_index>=finish_id) index_offset+=finish_offset;
-      sequence[temp_indices.length-1-i+index_offset]=temp_indices[random_node];
+      sequence[temp_indices.length-1-i+finish_offset]=temp_indices[random_node];
       for (int j = random_node; j<i; j++) temp_indices[j]=temp_indices[j+1];
     }
-  // println(sequence.length, sequence[0], sequence[sequence.length-1]);
-  // println(sequence);
   }
 
   void calculate_path_length() {
@@ -178,12 +174,13 @@ class GeneticWalker {
     // calculate_path_length();
     if (lines == null) generate_lines();
     tint(255, opacity);
-    if (animation_frame>=0&&animation_frame<sequence.length-2) {
+    if (animation_frame>=0&&animation_frame<sequence.length+98) {
       for (int i=0; i<animation_frame; i++) {
         stroke(255-255*(float)i/sequence.length*(float)i/sequence.length, 
           255*(float)i/sequence.length, 
           0, 
           80+170*max(0, i-animation_frame+50)/50);
+        if (i<sequence.length-1)
         line(nodes[sequence[i]].position.x+wm.position.x, 
           nodes[sequence[i]].position.y+wm.position.y, 
           nodes[sequence[i+1]].position.x+wm.position.x, 
