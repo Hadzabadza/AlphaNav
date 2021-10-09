@@ -58,9 +58,7 @@ class FilterManager {
 
   void build_filters_csv() {
     Table csv = loadTable(sketchPath("data\\"+csv_name));
-    //int w = csv.getColumnCount();
     int h = csv.getRowCount();
-    //int rlpf, glpf, blpf, rhpf, ghpf, bhpf;
     for (int i = 0; i<h; i++) { 
       int rlpf = red_lpf;
       int glpf = green_lpf;
@@ -86,15 +84,6 @@ class FilterManager {
     re_generate_filtered_map();
   }
 
-  void update() {
-    re_generate_filtered_map();
-    blend_screen.beginDraw(); 
-    blend_screen.clear(); 
-    blend_screen.image(origin.map, 0, 0); 
-    blend_screen.blend(map_filtered, 0, 0, map_filtered.width, map_filtered.height, 0, 0, origin.map.width, origin.map.height, SUBTRACT); 
-    blend_screen.endDraw();
-  }
-
   void re_generate_filtered_map() {
     map_filtered = origin.map.copy(); 
     map_filtered.loadPixels(); 
@@ -110,37 +99,72 @@ class FilterManager {
     map_filtered.updatePixels();
   }
 
+  void save_filtered_image() {
+    filter_name = cp5.get(Textfield.class, "filter_name").getText(); 
+    println("Saving filter as: "+filter_name); 
+    map_filtered.save(sketchPath("Filters\\"+filter_name));
+  }
+
+  void save_filtered_image_using_name(String name) {
+    println("Saving filter as: "+name); 
+    map_filtered.save(sketchPath("Filters\\"+name));
+  }
+
+  void generate_starting_binary_warning() {
+    binary_screen.beginDraw();
+    binary_screen.background(0, 150);
+    binary_screen.fill(230, 0, 0);
+    binary_screen.textSize(48);
+    binary_screen.textAlign(CENTER);
+    binary_screen.text("Binary map not generated!", binary_screen.width/2, binary_screen.height/2);
+    binary_screen.fill(230);
+    binary_screen.textSize(24);
+    binary_screen.text("Click \"Load filters\" to load filters and generate a binary map.", binary_screen.width/2, binary_screen.height/2+40);
+    binary_screen.endDraw();
+  }
+
   void controlEvent(ControlEvent theEvent) {
     if (fm_toggled) fm_panel.move_to.y = 0; 
     else fm_panel.move_to.y = height+2; 
     update();
   }
 
+  void update() {
+    re_generate_filtered_map();
+    blend_screen.beginDraw(); 
+    blend_screen.clear(); 
+    blend_screen.image(origin.map, 0, 0); 
+    blend_screen.blend(map_filtered, 0, 0, map_filtered.width, map_filtered.height, 0, 0, origin.map.width, origin.map.height, SUBTRACT); 
+    blend_screen.endDraw();
+  }
+
+  void draw_blend_screen() {
+    image(blend_screen, position.x, position.y);
+  }
+
   void draw() {
     fill (255, 180); 
     textSize(24); 
     fm_panel.draw();
-    if (show_binary) {
-      image(binary_screen, position.x, position.y+1); 
-      text("Binary map mode", position.x+20, position.y+40);
-    } else
-      if (show_blend) {
-        image(blend_screen, position.x, position.y+1); 
-        text("Blend map mode", position.x+20, position.y+40);
-      } else {
-        image(map_filtered, position.x, position.y+1); 
-        text("Filter demo mode", position.x+20, position.y+40);
-      }
-  }
-
-  void draw_blend_screen() {
-    image(blend_screen, position.x, position.y); 
+    if (fm_panel.is_moving||fm_toggled) {
+      if (show_binary) {
+        image(binary_screen, position.x, position.y+1); 
+        text("Binary map mode", position.x+20, position.y+40);
+      } else
+        if (show_blend) {
+          image(blend_screen, position.x, position.y+1); 
+          text("Blend map mode", position.x+20, position.y+40);
+        } else {
+          image(map_filtered, position.x, position.y+1); 
+          text("Filter demo mode", position.x+20, position.y+40);
+        }
+    }
   }
 
   void create_controllers() {
     fm_panel = new ControlPanel(8, 2, fm_active_controls_color);
-    position = fm_panel.position;
     filter_builders = new controlP5.Controller[13]; 
+    position = fm_panel.position;
     filter_builders[0] = cp5.addSlider("red_lpf")
       .setPosition(fm_panel.controls_starting_x + (fm_panel.control_width+fm_panel.control_padding_x)* 0, 
       fm_panel.controls_starting_y + (fm_panel.control_height+fm_panel.control_padding_y)*0)
@@ -247,30 +271,6 @@ class FilterManager {
       .plugTo(this);
 
     fm_panel.controllers = filter_builders;
-  }
-
-  void save_filtered_image() {
-    filter_name = cp5.get(Textfield.class, "filter_name").getText(); 
-    println("Saving filter as: "+filter_name); 
-    map_filtered.save(sketchPath("Filters\\"+filter_name));
-  }
-
-  void save_filtered_image_using_name(String name) {
-    println("Saving filter as: "+name); 
-    map_filtered.save(sketchPath("Filters\\"+name));
-  }
-
-  void generate_starting_binary_warning() {
-    binary_screen.beginDraw();
-    binary_screen.background(0, 150);
-    binary_screen.fill(230, 0, 0);
-    binary_screen.textSize(48);
-    binary_screen.textAlign(CENTER);
-    binary_screen.text("Binary map not generated!", binary_screen.width/2, binary_screen.height/2);
-    binary_screen.fill(230);
-    binary_screen.textSize(24);
-    binary_screen.text("Click \"Load filters\" to load filters and generate a binary map.", binary_screen.width/2, binary_screen.height/2+40);
-    binary_screen.endDraw();
   }
 
   void fm_toggle() {

@@ -7,6 +7,11 @@ class ControlPanel {
   int control_padding_y;
   int controls_starting_x;
   int controls_starting_y;
+  int columns; 
+  int rows;
+  int free_vertical_space;
+
+  boolean is_moving = false;
 
   PVector position;
   PVector move_to = new PVector(0, 0);
@@ -14,14 +19,17 @@ class ControlPanel {
 
   color bounds_color;
 
-  ControlPanel(int columns, int rows, color _bounds_color){
-    int free_vertical_space = height - origin.h;
+  ControlPanel(int _columns, int _rows, color _bounds_color) {
+    free_vertical_space = height - origin.h;
+
+    columns = _columns;
+    rows = _rows;
 
     position = new PVector(origin.position.x, height);
     move_to = position.copy();
 
     control_width = width/round(columns*1.5);
-    control_height = min(control_width/6, free_vertical_space/2);
+    control_height = min(control_width/6, free_vertical_space/rows);
 
     control_padding_x = control_width/2;
     control_padding_y = min(control_height, (free_vertical_space-control_height*rows)/(rows+1));
@@ -30,11 +38,6 @@ class ControlPanel {
     controls_starting_y = round(position.y) + origin.h + control_padding_y;
 
     bounds_color = _bounds_color;
-  }
-
-  void draw(){
-    if (position.x!=move_to.x || position.y!=move_to.y) move_panel(); 
-    draw_bounds(int(position.x), int(position.y), origin.w, origin.h, bounds_color);  
   }
 
   void move_panel() {
@@ -47,5 +50,14 @@ class ControlPanel {
       controllers[i].setPosition(pos);
     }
     position.add(move_diff);
+  }
+
+  void draw() {
+    if (position.x!=move_to.x || position.y!=move_to.y) 
+    {
+      is_moving = true;
+      move_panel();
+    } else is_moving = false;
+    draw_bounds(int(position.x), int(position.y), origin.w, origin.h, bounds_color);
   }
 }

@@ -86,20 +86,24 @@ void setup() {
   wm_switch.getCaptionLabel().align(CENTER, CENTER);
 }
 
-void draw() {
-  clear();
-  origin.draw();
-  fm.draw();
-  nm.draw();
-  wm.draw();
-}
-
 void keyReleased() {
   if (key==' ') wm.nextgen();
+}
+
+void mouseReleased() {
+  nm.mouseEvent();
 }
 
 void draw_bounds(int x, int y, int w, int h, color c) {
   noFill();
   stroke(c);
   rect(x-1, y, w+2, h+2);
+}
+
+void draw() {
+  clear();
+  origin.draw();
+  fm.draw();
+  nm.draw();
+  wm.draw();
 }
