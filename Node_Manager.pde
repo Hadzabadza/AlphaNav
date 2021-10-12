@@ -182,7 +182,7 @@ class NodeManager {
         if (mouse_in_area) {
           highlighted = get_node_near_mouse();
           highlighted.highlight(position, color(255));
-          highlighted.draw_distances(distances_panel_position.x, distances_panel_position.y, distances_panel_dimensions.x, distances_panel_dimensions.y);
+          highlighted.draw_distances_zip(distances_panel_position.x, distances_panel_position.y, distances_panel_dimensions.x, distances_panel_dimensions.y);
         } else {
           highlighted = null;
         }
