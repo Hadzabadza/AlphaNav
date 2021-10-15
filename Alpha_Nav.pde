@@ -1,6 +1,7 @@
 import controlP5.*;
 import java.io.File;
-import java.util.Map;
+// import java.util.Map;
+import java.util.HashSet;
 
 ///////////////////////////////////////////////////////////////
 //                    SETTINGS HERE                          //
@@ -92,6 +93,7 @@ void keyReleased() {
 
 void mouseReleased() {
   nm.mouseEvent();
+  wm.mouseEvent();
 }
 
 void draw_bounds(int x, int y, int w, int h, color c) {
@@ -106,4 +108,13 @@ void draw() {
   fm.draw();
   nm.draw();
   wm.draw();
+}
+
+void recalculate_mouse_relative_to_position(PVector mouse, PVector position) {
+  mouse.x = mouseX - position.x;
+  mouse.y = mouseY - position.y;
+}
+
+boolean mouse_in_area(float x, float y, float w, float h){
+  return (x>0)&&(y>0)&&(x<w)&&(y<h);
 }

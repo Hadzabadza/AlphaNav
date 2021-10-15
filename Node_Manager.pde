@@ -90,24 +90,18 @@ class NodeManager {
   }
 
 
-  Node get_node_near_mouse() {
+  Node get_node_near_mouse(PVector mouse) {
     int node_index = 0; 
-    float min_dist = dist(nodes[0].position.x, nodes[0].position.y, nm_mouse.x, nm_mouse.y);
+    float min_dist = dist(nodes[0].position.x, nodes[0].position.y, mouse.x, mouse.y);
     float dist;
     for (int i=1; i<nodes.length; i++) {
-      dist = dist(nodes[i].position.x, nodes[i].position.y, nm_mouse.x, nm_mouse.y);
+      dist = dist(nodes[i].position.x, nodes[i].position.y, mouse.x, mouse.y);
       if (min_dist>dist) {
         min_dist = dist;
         node_index = i;
       }
     }
     return nodes[node_index];
-  }
-
-  void recalculate_mouse_relative_to_nm() {
-    nm_mouse.x = mouseX - position.x;
-    nm_mouse.y = mouseY - position.y;
-    mouse_in_area = (nm_mouse.x>0)&&(nm_mouse.y>0)&&(nm_mouse.x<w)&&(nm_mouse.y<h);
   }
 
   void recalculate_distances_panel_properties() {
@@ -132,7 +126,8 @@ class NodeManager {
   }
 
   void draw() {
-    recalculate_mouse_relative_to_nm();
+    recalculate_mouse_relative_to_position(nm_mouse, position);
+    mouse_in_area = mouse_in_area(nm_mouse.x,nm_mouse.y,w,h);
     nm_panel.draw();
     if (nm_panel.is_moving||nm_toggled) {
       noFill();
@@ -180,7 +175,7 @@ class NodeManager {
         textAlign(LEFT);
 
         if (mouse_in_area) {
-          highlighted = get_node_near_mouse();
+          highlighted = get_node_near_mouse(nm_mouse);
           highlighted.highlight(position, color(255));
           highlighted.draw_distances_zip(distances_panel_position.x, distances_panel_position.y, distances_panel_dimensions.x, distances_panel_dimensions.y);
         } else {
@@ -209,6 +204,7 @@ class NodeManager {
       .setColorActive(nm_active_controls_color)
       .plugTo(this);
     node_handlers[0].getCaptionLabel().setSize(24);
+
     node_handlers[1] = cp5.addToggle("show_distances")
       .setPosition(nm_panel.controls_starting_x + (nm_panel.control_width+nm_panel.control_padding_x)* 0, 
       nm_panel.controls_starting_y + (nm_panel.control_height+nm_panel.control_padding_y)*1)
@@ -220,7 +216,8 @@ class NodeManager {
     node_handlers[1].setCaptionLabel("Show distances");
     node_handlers[1].getCaptionLabel().setSize(24);
     node_handlers[1].getCaptionLabel().align(CENTER, CENTER);
-    node_handlers[0].getCaptionLabel().setSize(24);
+    node_handlers[1].getCaptionLabel().setSize(24);
+
     node_handlers[2] = cp5.addToggle("selecting")
       .setPosition(nm_panel.controls_starting_x + (nm_panel.control_width+nm_panel.control_padding_x)* 0, 
       nm_panel.controls_starting_y + (nm_panel.control_height+nm_panel.control_padding_y)*2)
@@ -232,6 +229,7 @@ class NodeManager {
     node_handlers[2].setCaptionLabel("Select start/finish");
     node_handlers[2].getCaptionLabel().setSize(24);
     node_handlers[2].getCaptionLabel().align(CENTER, CENTER);
+
     nm_panel.controllers = node_handlers;
   }
 

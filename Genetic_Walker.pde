@@ -12,12 +12,12 @@ class GeneticWalker {
   GeneticWalker(Node[] _nodes) {
     nodes = _nodes;
     generate_sequence();
-    calculate_path_length();
   }
 
   void generate_sequence() {
     if (nm.start!=null&&nm.finish!=null&&nm.start==nm.finish) sequence = new int[nodes.length+1];
     else sequence = new int[nodes.length];
+    HashSet<Integer> used_nodes = new HashSet<Integer>();
     lines = null;
     start_offset = 0;
     start_id = 0;
@@ -27,32 +27,74 @@ class GeneticWalker {
       start_offset = 1;
       start_id = nm.start.id;
       sequence[0] = start_id;
+      used_nodes.add(start_id);
     }
     if (nm.finish!=null) {
       finish_offset = 1;
       finish_id = nm.finish.id;
       sequence[sequence.length-1]=finish_id;
+      used_nodes.add(finish_id);
     }
-    int[] temp_indices = new int[sequence.length-start_offset-finish_offset];
-    int index_offset;
-    for (int i = 0; i < temp_indices.length; ++i) {
-      index_offset = 0;
-      if(start_id<finish_id){
-        if ((i+index_offset)>=start_id) index_offset+=start_offset;
-        if ((i+index_offset)>=finish_id) index_offset+=finish_offset;
-      } else {
-        if ((i+index_offset)>=finish_id) index_offset+=finish_offset;
-        if ((i+index_offset)>=start_id) index_offset+=start_offset;
+    for (int i=0+start_offset; i<sequence.length-finish_offset; i++) 
+      // sequence[i] = next_gene(nm.nodes[i], used_nodes, random(nm.nodes[i].minWeight, nm.nodes[i].medianWeight*2));
+      if(i==0) sequence[i] = next_gene(nm.nodes[floor(random(0,sequence.length-finish_offset))], used_nodes, random(0,nm.nodes[i].medianWeight));
+      else sequence[i] = next_gene(nm.nodes[sequence[i-1]], used_nodes, random(0,nm.nodes[i].medianWeight));
+    // int[] temp_indices = new int[sequence.length-start_offset-finish_offset];
+    // int index_offset;
+    // for (int i = 0; i < temp_indices.length; ++i) {
+    //   index_offset = 0;
+    //   if(start_id<finish_id){
+    //     if ((i+index_offset)>=start_id) index_offset+=start_offset;
+    //     if ((i+index_offset)>=finish_id) index_offset+=finish_offset;
+    //   } else {
+    //     if ((i+index_offset)>=finish_id) index_offset+=finish_offset;
+    //     if ((i+index_offset)>=start_id) index_offset+=start_offset;
+    //   }
+    //   temp_indices[i]=i+index_offset;
+    // } 
+    // int sequence_index;
+    // for (int i = temp_indices.length-1; i>=0; i--) {
+    //   int random_node = ceil(random(-0.99, i));
+    //   sequence_index = temp_indices.length-1-i;
+    //   sequence[temp_indices.length-1-i+finish_offset]=temp_indices[random_node];
+    //   for (int j = random_node; j<i; j++) temp_indices[j]=temp_indices[j+1];
+    // }
+    calculate_path_length();
+  }
+
+  int next_gene(Node current_node, HashSet<Integer> bans, float weight){
+    // TODO: account for node weights on both sides
+    // println(bans);
+    float est_weight = weight/current_node.maxWeight*current_node.ids_distances_weights.length;
+    int estimated_index = floor(est_weight);
+    int initial_estimate = estimated_index;
+    boolean estimate_corrected = false;
+    while (estimated_index<current_node.ids_distances_weights.length-1
+      &&weight>current_node.ids_distances_weights[estimated_index+1][2]){
+      estimated_index++;
+      estimate_corrected = true;
+    }
+    if (!estimate_corrected){
+      while (estimated_index>1
+        &&weight<current_node.ids_distances_weights[estimated_index-1][2]){
+        estimated_index--;
+        estimate_corrected = true;
       }
-      temp_indices[i]=i+index_offset;
-    } 
-    int sequence_index;
-    for (int i = temp_indices.length-1; i>=0; i--) {
-      int random_node = ceil(random(-0.99, i));
-      sequence_index = temp_indices.length-1-i;
-      sequence[temp_indices.length-1-i+finish_offset]=temp_indices[random_node];
-      for (int j = random_node; j<i; j++) temp_indices[j]=temp_indices[j+1];
     }
+    // print(weight, current_node.ids_distances_weights[initial_estimate][2], initial_estimate, estimated_index,"- ");
+
+    boolean gene_picked = false;
+    while (!gene_picked && estimated_index>0) {
+      if (!bans.contains(int(current_node.ids_distances_weights[estimated_index][0]))) gene_picked = true;
+      else estimated_index--;
+    }
+    while (!gene_picked && estimated_index<current_node.ids_distances_weights.length-1){
+      if (!bans.contains(int(current_node.ids_distances_weights[estimated_index][0]))) gene_picked = true;
+      else estimated_index++; 
+    }
+    bans.add(int(current_node.ids_distances_weights[estimated_index][0]));
+    // println(estimated_index);
+    return int(current_node.ids_distances_weights[estimated_index][0]);
   }
 
   void calculate_path_length() {
@@ -60,9 +102,11 @@ class GeneticWalker {
     Node start;
     Node end;
     for (int i = 0; i < sequence.length-1; ++i) {
-      start = nodes[sequence[i]];
-      end = nodes[sequence[i+1]];
-      distance += dist(start.position.x, start.position.y, end.position.x, end.position.y);
+      if (sequence[i]!=-1 && sequence[i+1]!=-1){
+        start = nodes[sequence[i]];
+        end = nodes[sequence[i+1]];
+        distance += dist(start.position.x, start.position.y, end.position.x, end.position.y);
+      }
     }
   }
 
@@ -70,10 +114,10 @@ class GeneticWalker {
     int copy_length = ceil(random(0.99, with.sequence.length*copy_level-0.99-start_offset-finish_offset));
     int starting_index = ceil(random(-0.99+start_offset, sequence.length-copy_length-finish_offset));
     int[] copied_sequence = new int[copy_length];
-    HashMap<Integer, Boolean> removed_nodes = new HashMap<Integer, Boolean>();
+    HashSet<Integer> removed_nodes = new HashSet<Integer>();
     for (int i=0; i<copied_sequence.length; i++) {
       copied_sequence[i] = with.sequence[i+starting_index];
-      removed_nodes.put(copied_sequence[i], true);
+      removed_nodes.add(copied_sequence[i]);
     }
     int[] resulting_sequence = new int[with.sequence.length];
     arrayCopy(sequence, resulting_sequence);
@@ -82,7 +126,7 @@ class GeneticWalker {
     // int best_subseq_length = 0;
     int current_subseq_start = 0;
     for (int i=0; i<resulting_sequence.length; i++) {
-      if (removed_nodes.containsKey(resulting_sequence[i])
+      if (removed_nodes.contains(resulting_sequence[i])
         ||((i>=starting_index)&&(i<=starting_index+copied_sequence.length))) {
         // best_subseq_start = current_subseq_start;
         // best_subseq_end = i;
@@ -158,14 +202,16 @@ class GeneticWalker {
     lines.clear();
     lines.stroke(255);
     for (int i = 0; i < sequence.length-1; ++i) {
-      start = nodes[sequence[i]];
-      end = nodes[sequence[i+1]];
-      float angle = PVector.angleBetween(start.position, end.position);//+float(frameCount)/50;
-      float x1 = start.position.x;//+start.radius*cos(angle+PI);
-      float y1 = start.position.y;//+start.radius*sin(angle+PI);
-      float x2 = end.position.x;//+end.radius*cos(angle);
-      float y2 = end.position.y;//+end.radius*sin(angle);
-      lines.line(x1, y1, x2, y2);
+      if (sequence[i]!=-1 && sequence[i+1]!=-1){
+        start = nodes[sequence[i]];
+        end = nodes[sequence[i+1]];
+        float angle = PVector.angleBetween(start.position, end.position);//+float(frameCount)/50;
+        float x1 = start.position.x;//+start.radius*cos(angle+PI);
+        float y1 = start.position.y;//+start.radius*sin(angle+PI);
+        float x2 = end.position.x;//+end.radius*cos(angle);
+        float y2 = end.position.y;//+end.radius*sin(angle);
+        lines.line(x1, y1, x2, y2);
+      }
     }
     lines.endDraw();
   }
@@ -181,10 +227,11 @@ class GeneticWalker {
           0, 
           80+170*max(0, i-animation_frame+50)/50);
         if (i<sequence.length-1)
-        line(nodes[sequence[i]].position.x+wm.position.x, 
-          nodes[sequence[i]].position.y+wm.position.y, 
-          nodes[sequence[i+1]].position.x+wm.position.x, 
-          nodes[sequence[i+1]].position.y+wm.position.y);
+        if (sequence[i]!=-1 && sequence[i+1]!=-1)
+          line(nodes[sequence[i]].position.x+wm.position.x, 
+            nodes[sequence[i]].position.y+wm.position.y, 
+            nodes[sequence[i+1]].position.x+wm.position.x, 
+            nodes[sequence[i+1]].position.y+wm.position.y);
       }
       animation_frame++;
     } else {
